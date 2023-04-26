@@ -1,15 +1,15 @@
 # ansible-sops-example 
 
-Repository to demonstrate Moziall SOPS working with Ansible
+Repository to demonstrate Moziall SOPS working with Ansible. 
 
 ## Prerequisites
-
-
 Create the File `env/sample-env/secrets.yaml` locally, but don't commit it into git yet.
 
 ```yaml
 root_password: MyRootPassword123!
 ```
+
+Attention! Generate you're own public/private key if you want to follow along and execute the commands yourself.
 
 ## Install of SOPS and AGE
 
@@ -39,10 +39,16 @@ AGE-SECRET-KEY-1E8KVHD06U5D54L2H3L9H6RF9RED3AMCNQZRMS7K98NSJ6NOT_A_REAL_KEY
 
 ## Encrypt & Decrypting of Files
 
-Export your recipients key -> e.g your own public key from your ~/.sops/keys/sample-env.txt and encrypt the yaml with sops
+Export your recipients key -> e.g your own public key from your ~/.sops/keys/sample-env.txt  and create a ``.sops.yaml` with your public key for encrypting your files. 
+
 ```
-export SOPS_AGE_RECIPIENTS=age1rzw9f9dvspwwykddan6ytllraywpume4jqx3enenu9m3ls493sjsr3slew
-sops --encrypt --age ${SOPS_AGE_RECIPIENTS} ./env/sample-env/secrets.yaml > ./env/sample-env/secrets.yaml.enc
+creation_rules:
+  - age: age1rzw9f9dvspwwykddan6ytllraywpume4jqx3enenu9m3ls493sjsr3slew
+```
+
+Encrypt the yaml with sops
+```
+sops --encrypt ./env/sample-env/secrets.yaml > ./env/sample-env/secrets.yaml.enc
 ```
 Now we successfully encrypted the file and can upload it to git. 
 
@@ -52,16 +58,69 @@ export SOPS_AGE_KEY_FILE=~/.sops/keys/sample-env.txt
 sops --decrypt --input-type yaml --output-type yaml ./env/sample-env/secrets.yaml.enc > ./env/sample-env/secrets.yaml
 ```
 
+## Directly working with the editor 
+
+If you configured all of the above variables, you can simply edit the encrypted file with the sops command
+
+```
+# Encrypt a new file
+./sops-scripts/encrypt.sh ./env/sample-env/secrets.yaml > ./node-playbooks/site-secrets.sops.yaml
+# Open an editor in the SOPS-CLI
+sops ./env/sample-env/vscode-test.sops.yaml
+```
+
+## Ansible - Working with SOPS
+
+Create a ``.sops.yaml` for encrypting your files. 
+
+```yaml
+creation_rules:
+  - age: age1rzw9f9dvspwwykddan6ytllraywpume4jqx3enenu9m3ls493sjsr3slew
+```
+
+Ansibles lookup Plugin can be used to decrypt SOPS files. 
+
+```yaml
+---
+- name: Load sops-encrypted values
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Print out the root password to the console
+      debug: 
+        var: lookup('community.sops.sops', 'site-secrets.sops.yaml')
+```
+
+```bash
+$ ansible-playbook node-playbooks/test.yaml -i env/sample-env/hosts.yaml
+[WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not
+match 'all'
+
+PLAY [Load sops-encrypted values] *********************************************************************************
+
+TASK [Print out the root password to the console] *****************************************************************
+ok: [localhost] => {
+    "lookup('community.sops.sops', 'site-secrets.sops.yaml')": "root_password: MyTest123!"
+}
+
+PLAY RECAP ********************************************************************************************************
+localhost                  : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+```
+
+You can now use SOPS encrypted variables in your playbook
+
+
 ## Hooking into Git 
 
 Export the location of your age key
-```
+```bash
 export SOPS_AGE_KEY_FILE=~/.sops/keys/sample-env.txt
 ```
 
 The scripts in the ./sops-scripts can be used to encrypt and decrypt files 
 
-```
+```bash
 chmod +x ./sops-scripts/*
 ./sops-scripts/decrypt.sh ./env/sample-env/secrets.yaml.enc > ./env/sample-env/secrets.yaml
 ./sops-scripts/decrypt.sh ./env/sample-env/secrets.yaml.enc > ./env/sample-env/secrets.yaml
@@ -75,7 +134,8 @@ git config --local filter.sops.required true
 ```
 
 You can now commit your changes into the repository -> the Git Filter will encrypt them for you transparently.
-```
+
+```bash
 git add env/
 git status
 git commit -vm 'Switch to Git Filter for shared secret'
@@ -85,7 +145,8 @@ git push
 You're local repository won't change. You can still see and edit the SOPS File. 
 
 Looking into the remote repository `env/sample-env/secrets.yaml`, all the secrets are encrypted
-```
+
+```yaml
 root_password: MyPassword123!
 sops:
     kms: []
@@ -112,14 +173,5 @@ sops:
 This concludes encryption and decryption with git. You can check your history for the encrypted file with `git rev-list --objects -g --no-walk --all | grep env/sample-env/secrets.yaml`
 
 
-## Setup with VS-Code 
-
-VS-Code Setup 
-
-1. Install https://marketplace.visualstudio.com/items?itemName=signageos.signageos-vscode-sops
-
-
-
 ## MISC 
-
 You can remove a file from git with `git filter-branch --tree-filter 'rm -f ./env/sample-env/secrets.yaml' HEAD`

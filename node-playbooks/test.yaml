@@ -1,11 +1,8 @@
 ---
-  - name: "Playing with Ansible and Git"
-    hosts: localhost
-    connection: local 
-    tasks:
-
-    - name: "just execute a ls -lrt command"
-      shell: "ls -lrt"
-      register: "output"
-
-    - debug: var=output.stdout_lines
+- name: Load sops-encrypted values
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Print out the root password to the console
+      debug: 
+        var: lookup('community.sops.sops', 'site-secrets.sops.yaml')

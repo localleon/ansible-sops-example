@@ -172,6 +172,14 @@ sops:
 
 This concludes encryption and decryption with git. You can check your history for the encrypted file with `git rev-list --objects -g --no-walk --all | grep env/sample-env/secrets.yaml`
 
+## Sources 
+
+For more information refere to: 
+- https://devops.datenkollektiv.de/using-sops-with-age-and-git-like-a-pro.html
+- https://docs.ansible.com/ansible/latest/collections/community/sops/docsite/guide.html
+- https://github.com/mozilla/sops#usage
+- https://github.com/FiloSottile/age
+
 
 ## MISC 
 You can remove a file from git with `git filter-branch --tree-filter 'rm -f ./env/sample-env/secrets.yaml' HEAD`

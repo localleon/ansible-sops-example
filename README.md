@@ -2,6 +2,14 @@
 
 Repository to demonstrate Moziall SOPS working with Ansible
 
+## Prerequisites
+
+
+Create the File `env/sample-env/secrets.yaml` locally, but don't commit it into git yet.
+
+```yaml
+root_password: MyRootPassword123!
+```
 
 ## Install of SOPS and AGE
 
@@ -74,3 +82,8 @@ VS-Code Setup
 
 1. Install https://marketplace.visualstudio.com/items?itemName=signageos.signageos-vscode-sops
 
+
+
+## MISC 
+
+You can remove a file from git with `git filter-branch --tree-filter 'rm -f ./env/sample-env/secrets.yaml' HEAD`

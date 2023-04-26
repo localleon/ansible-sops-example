@@ -1,1 +1,1 @@
-secret.yaml filter=sops
+*secrets.yaml filter=sops

@@ -71,14 +71,7 @@ sops ./env/sample-env/vscode-test.sops.yaml
 
 ## Ansible - Working with SOPS
 
-Create a ``.sops.yaml` for encrypting your files. 
-
-```yaml
-creation_rules:
-  - age: age1rzw9f9dvspwwykddan6ytllraywpume4jqx3enenu9m3ls493sjsr3slew
-```
-
-Ansibles lookup Plugin can be used to decrypt SOPS files. 
+Ansibles lookup Plugin can be used to decrypt SOPS files and hooks into our existing configuration and environment variables
 
 ```yaml
 ---

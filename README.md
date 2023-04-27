@@ -1,6 +1,12 @@
-# ansible-sops-example 
+# SOPS Examples for Ansible and isindir/SOPS-Secret-Operator for Kubernetes
 
-Repository to demonstrate Moziall SOPS working with Ansible. 
+Repository to demonstrate Moziall SOPS working with Ansible. All keys and values in this repository are dummy data and are not really used anywhere! 
+
+Attention! Generate you're own public/private key if you want to follow along and execute the commands yourself.
+
+The guides for Ansible and Kubernetes are in seperate files. The main README.md contains general knowledge about age and sops.
+- [Ansible Guides](Ansible.md)
+- [Kubernetes Notebook](Kubernetes.ipynb)
 
 ## Prerequisites
 Create the File `env/sample-env/secrets.yaml` locally, but don't commit it into git yet.
@@ -8,8 +14,6 @@ Create the File `env/sample-env/secrets.yaml` locally, but don't commit it into 
 ```yaml
 root_password: MyRootPassword123!
 ```
-
-Attention! Generate you're own public/private key if you want to follow along and execute the commands yourself.
 
 ## Install of SOPS and AGE
 
@@ -68,41 +72,6 @@ If you configured all of the above variables, you can simply edit the encrypted 
 # Open an editor in the SOPS-CLI
 sops ./env/sample-env/vscode-test.sops.yaml
 ```
-
-## Ansible - Working with SOPS
-
-Ansibles lookup Plugin can be used to decrypt SOPS files and hooks into our existing configuration and environment variables
-
-```yaml
----
-- name: Load sops-encrypted values
-  hosts: localhost
-  gather_facts: false
-  tasks:
-    - name: Print out the root password to the console
-      debug: 
-        var: lookup('community.sops.sops', 'site-secrets.sops.yaml')
-```
-
-```bash
-$ ansible-playbook node-playbooks/test.yaml -i env/sample-env/hosts.yaml
-[WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not
-match 'all'
-
-PLAY [Load sops-encrypted values] *********************************************************************************
-
-TASK [Print out the root password to the console] *****************************************************************
-ok: [localhost] => {
-    "lookup('community.sops.sops', 'site-secrets.sops.yaml')": "root_password: MyTest123!"
-}
-
-PLAY RECAP ********************************************************************************************************
-localhost                  : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-
-```
-
-You can now use SOPS encrypted variables in your playbook
-
 
 ## Hooking into Git 
 

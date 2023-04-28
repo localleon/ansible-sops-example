@@ -1,15 +1,13 @@
 # SOPS Examples for Ansible and isindir/SOPS-Secret-Operator for Kubernetes
 
-Repository to demonstrate Moziall SOPS working with Ansible. All keys and values in this repository are dummy data and are not really used anywhere! 
-
-Attention! Generate you're own public/private key if you want to follow along and execute the commands yourself.
+Repository to demonstrate Moziall SOPS working with Ansible. All keys and values in this repository are dummy data and are not really used anywhere! You can use the generated dummy key with `export SOPS_AGE_KEY_FILE=./sops-key-sample-env.txt``or generate one for yourself with `age-keygen -o key.txt`
 
 The guides for Ansible and Kubernetes are in seperate files. The main README.md contains general knowledge about age and sops.
 - [Ansible Guides](Ansible.md)
 - [Kubernetes Notebook](Kubernetes.ipynb)
 
 ## Prerequisites
-Create the File `env/sample-env/secrets.yaml` locally, but don't commit it into git yet.
+Create the File `env/sample-env/secrets.yaml` with a normal text editor locally, but don't commit it into git yet.
 
 ```yaml
 root_password: MyRootPassword123!
@@ -30,30 +28,33 @@ sudo apt install age
 
 You can create a modern encryption key with the age command line tool
 ```
-age-keygen -o ~/.sops/keys/sample-env.txt
-cat ~/.sops/keys/sample-env.txt
+age-keygen -o sops-key-sample-env.txt
+cat sops-key-sample-env.txt
 ```
 
 This creates the following key in the textfile
 ```
 # created: 2023-04-26T18:57:20+02:00
 # public key: age1rzw9f9dvspwwykddan6ytllraywpume4jqx3enenu9m3ls493sjsr3slew
-AGE-SECRET-KEY-1E8KVHD06U5D54L2H3L9H6RF9RED3AMCNQZRMS7K98NSJ6NOT_A_REAL_KEY
+AGE-SECRET-KEY-1E8KVHD06U5D54L2H3L9H6RF9RED3AMCNQZRMS7K98NSJ6TSXZD0SC7WL5J
 ```
 
 ## Encrypt & Decrypting of Files
 
-Export your recipients key -> e.g your own public key from your ~/.sops/keys/sample-env.txt  and create a ``.sops.yaml` with your public key for encrypting your files. 
+Export your recipients key -> e.g your own public key from your `sops-key-sample-env.txt`  and create a `.sops.yaml` with your public key for encrypting your files. 
 
 ```
 creation_rules:
   - age: age1rzw9f9dvspwwykddan6ytllraywpume4jqx3enenu9m3ls493sjsr3slew
-```
+````
 
-Encrypt the yaml with sops
+The creation_rules specify what should happen for specifiy files and how they should be encrypted. We keep it simple here! 
+
+Now encrypt the yaml with sops
 ```
 sops --encrypt ./env/sample-env/secrets.yaml > ./env/sample-env/secrets.yaml.enc
 ```
+
 Now we successfully encrypted the file and can upload it to git. 
 
 To decrypt our stored files. Export the keyfile you want to use and then decrypt the stored files

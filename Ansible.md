@@ -30,4 +30,22 @@ localhost                  : ok=1    changed=0    unreachable=0    failed=0    s
 
 ```
 
-You can now use SOPS encrypted variables in your playbook
+You can now use SOPS encrypted variables in your playbook. The lookup plugin can also be used in all your variables files -> the following in the host_vars/localhost.yaml: 
+
+```
+host_var_password: "{{ (lookup('community.sops.sops', 'site-secrets.sops.yaml') | from_yaml).group_var_test }}"
+test: Hallo
+```
+
+and then try to output your host-var via playbook: 
+
+```
+---
+- name: Load sops-encrypted values
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Check if lookup works for host_vars
+      ansible.builtin.debug:
+        var: host_var_password
+```

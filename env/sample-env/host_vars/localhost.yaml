@@ -1,0 +1,2 @@
+host_var_password: "{{ (lookup('community.sops.sops', 'site-secrets.sops.yaml') | from_yaml).group_var_test }}"
+test: Hallo

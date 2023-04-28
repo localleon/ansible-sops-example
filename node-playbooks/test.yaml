@@ -4,5 +4,9 @@
   gather_facts: false
   tasks:
     - name: Print out the root password to the console
-      debug: 
-        var: lookup('community.sops.sops', 'site-secrets.sops.yaml')
+      ansible.builtin.debug:
+        msg: "{{ (lookup('community.sops.sops', 'site-secrets.sops.yaml') | from_yaml).root_password }}"
+
+    - name: Check if lookup works for host_vars
+      ansible.builtin.debug:
+        var: host_var_password
